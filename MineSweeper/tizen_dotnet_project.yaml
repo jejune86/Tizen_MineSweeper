@@ -1,0 +1,24 @@
+# csproj file path
+csproj_file: MineSweeper.csproj
+
+# Default profile, Tizen API version
+profile: mobile
+api_version: "7.0"
+
+# Build type [Debug/ Release/ Test]
+build_type: Debug
+
+# Signing profile to be used for Tizen package signing
+# If value is empty: "", active signing profile will be used
+# Else If value is ".", default signing profile will be used
+signing_profile: ""
+
+# files monitored for dirty/modified status
+files:
+  - MineSweeper.csproj
+  - MineSweeper.cs
+  - tizen-manifest.xml
+  - shared/res/MineSweeper.png
+
+# project dependencies
+deps: []
