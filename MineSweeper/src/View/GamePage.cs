@@ -1,19 +1,23 @@
+using MineSweeper.ViewModels;
 using Tizen.NUI;
 using Tizen.NUI.BaseComponents;
 using Tizen.NUI.Components;
-using MineSweeper.ViewModels;
+
 
 namespace MineSweeper.Views
 {
-    public class BoardView : ContentPage
+    public class GamePage : ContentPage
     {
         private BoardViewModel boardViewModel;
         private int cellSize;
 
-        public BoardView(BoardViewModel vm)
+        public GamePage(BoardViewModel vm)
         {
             boardViewModel = vm;
-            AppBar.Title = "Mine Sweeper";
+            AppBar = new AppBar()
+            {
+                Title = "Game"
+            };
 
             WidthSpecification = LayoutParamPolicies.MatchParent;
             HeightSpecification = LayoutParamPolicies.MatchParent;
@@ -41,7 +45,7 @@ namespace MineSweeper.Views
                         WidthSpecification = cellSize,
                         HeightSpecification = cellSize,
                         BorderlineWidth = 1,
-                        BorderlineColor = Tizen.NUI.Color.Black
+                        BorderlineColor = Color.Black
                     };
 
                     int rr = r, cc = c;
