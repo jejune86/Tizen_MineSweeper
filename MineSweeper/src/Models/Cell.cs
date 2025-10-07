@@ -13,7 +13,7 @@ namespace MineSweeper.Models
 
         public Cell()
         {
-            this.num = 0;
+            num = 0;
             isRevealed = false;
             isFlagged = false;
         }
