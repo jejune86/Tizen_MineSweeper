@@ -40,7 +40,7 @@ namespace MineSweeper.ViewModels
             }
         }
 
-        private void RevealCell(int row, int col)
+        private void RevealCell(int row, int col) // TODO : BFS로 바꾸기
         {
             var btn = Buttons[row, col];
             if (!btn.IsEnabled || board.Cells[row, col].isFlagged) return;

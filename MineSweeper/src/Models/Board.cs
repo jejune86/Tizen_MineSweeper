@@ -13,6 +13,13 @@ namespace MineSweeper.Models
         public Board()
         {
             Cells = new Cell[rows, cols];
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    Cells[r, c] = new Cell();
+                }
+            }
         }
 
         public void Initialize(int firstRow, int firstCol)
@@ -24,7 +31,7 @@ namespace MineSweeper.Models
                     Cells[r, c] = new Cell();
                 }
             }
-            
+
             Random rnd = new Random();
             int placedMines = 0;
 
@@ -32,7 +39,7 @@ namespace MineSweeper.Models
             {
                 int r = rnd.Next(rows);
                 int c = rnd.Next(cols);
-                if ((r == firstRow && c == firstCol) || Cells[r, c].num == -1) continue;
+                if ((Math.Abs(r - firstRow) <= 1 && Math.Abs(c - firstCol) <= 1) || Cells[r, c].num == -1) continue;
                 Cells[r, c].num = -1;
                 placedMines++;
             }

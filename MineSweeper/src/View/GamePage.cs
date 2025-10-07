@@ -12,7 +12,7 @@ namespace MineSweeper.Views
     {
         private BoardViewModel boardViewModel;
         private int cellSize;
-        private DateTime pressStartTime;
+        private Timer longPressTimer;
 
         public GamePage(BoardViewModel vm)
         {
@@ -71,26 +71,34 @@ namespace MineSweeper.Views
             };
         }
 
-        private bool OnCellTouchEvent(Object sender, TouchEventArgs e, int row, int col)
-        {   
-            
+        private bool OnCellTouchEvent(object sender, TouchEventArgs e, int row, int col)
+        {
             if (e.Touch.GetState(0) == PointStateType.Down)
             {
                 Log.Info("MineSweeper", $"Pressed Down at ({row}, {col})");
-                pressStartTime = DateTime.Now;
+
+                // 0.6초(600ms) 이상 누르면 깃발 표시
+                longPressTimer = new Timer(600);
+                longPressTimer.Tick += (s, args) =>
+                {
+                    boardViewModel.OnCellFlagged(row, col);
+                    Log.Info("MineSweeper", $"Long Press Detected at ({row}, {col})");
+                    longPressTimer.Stop();
+                    longPressTimer.Dispose();
+                    longPressTimer = null;
+                    return false; // 한 번만 실행
+                };
+                longPressTimer.Start();
             }
             else if (e.Touch.GetState(0) == PointStateType.Up)
             {
-                var pressDuration = (DateTime.Now - pressStartTime).TotalMilliseconds;
-                Log.Info("MineSweeper", $"Released ({row}, {col}), duration={pressDuration}ms");
-
-                if (pressDuration > 600)
+                // 만약 long press 이전에 손을 뗐다면 -> 일반 클릭으로 처리
+                if (longPressTimer != null)
                 {
-                    boardViewModel.OnCellFlagged(row, col); // 길게 눌렀을 때
-                }
-                else
-                {
-                    boardViewModel.OnCellClicked(row, col); // 짧게 눌렀을 때
+                    longPressTimer.Stop();
+                    longPressTimer.Dispose();
+                    longPressTimer = null;
+                    boardViewModel.OnCellClicked(row, col);
                 }
             }
 
