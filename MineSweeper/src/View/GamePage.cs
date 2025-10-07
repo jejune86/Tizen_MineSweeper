@@ -1,4 +1,6 @@
+using System;
 using MineSweeper.ViewModels;
+using Tizen;
 using Tizen.NUI;
 using Tizen.NUI.BaseComponents;
 using Tizen.NUI.Components;
@@ -10,6 +12,7 @@ namespace MineSweeper.Views
     {
         private BoardViewModel boardViewModel;
         private int cellSize;
+        private DateTime pressStartTime;
 
         public GamePage(BoardViewModel vm)
         {
@@ -28,17 +31,17 @@ namespace MineSweeper.Views
                 HeightSpecification = LayoutParamPolicies.MatchParent,
                 Layout = new GridLayout
                 {
-                    Rows = boardViewModel.boardModel.rows,     // 인스턴스로 접근
-                    Columns = boardViewModel.boardModel.cols,
+                    Rows = boardViewModel.board.rows,     // 인스턴스로 접근
+                    Columns = boardViewModel.board.cols,
                     GridOrientation = GridLayout.Orientation.Horizontal
                 }
             };
 
-            cellSize = Window.Instance.Size.Width / boardViewModel.boardModel.rows;
+            cellSize = Window.Instance.Size.Width / boardViewModel.board.rows;
 
-            for (int r = 0; r < boardViewModel.boardModel.rows; r++)
+            for (int r = 0; r < boardViewModel.board.rows; r++)
             {
-                for (int c = 0; c < boardViewModel.boardModel.cols; c++)
+                for (int c = 0; c < boardViewModel.board.cols; c++)
                 {
                     var btn = new Button
                     {
@@ -49,7 +52,8 @@ namespace MineSweeper.Views
                     };
 
                     int rr = r, cc = c;
-                    btn.Clicked += (s, e) => boardViewModel.OnCellClicked(rr, cc);
+                    
+                    btn.TouchEvent += (s, e) => OnCellTouchEvent(s, e, rr, cc);
 
                     boardViewModel.Buttons[r, c] = btn;
                     boardLayout.Add(btn);
@@ -61,10 +65,36 @@ namespace MineSweeper.Views
 
             boardViewModel.GameOver += () =>
             {
-                for (int r = 0; r < boardViewModel.boardModel.rows; r++)
-                    for (int c = 0; c < boardViewModel.boardModel.cols; c++)
+                for (int r = 0; r < boardViewModel.board.rows; r++)
+                    for (int c = 0; c < boardViewModel.board.cols; c++)
                         boardViewModel.Buttons[r, c].IsEnabled = false;
             };
+        }
+
+        private bool OnCellTouchEvent(Object sender, TouchEventArgs e, int row, int col)
+        {   
+            
+            if (e.Touch.GetState(0) == PointStateType.Down)
+            {
+                Log.Info("MineSweeper", $"Pressed Down at ({row}, {col})");
+                pressStartTime = DateTime.Now;
+            }
+            else if (e.Touch.GetState(0) == PointStateType.Up)
+            {
+                var pressDuration = (DateTime.Now - pressStartTime).TotalMilliseconds;
+                Log.Info("MineSweeper", $"Released ({row}, {col}), duration={pressDuration}ms");
+
+                if (pressDuration > 600)
+                {
+                    boardViewModel.OnCellFlagged(row, col); // 길게 눌렀을 때
+                }
+                else
+                {
+                    boardViewModel.OnCellClicked(row, col); // 짧게 눌렀을 때
+                }
+            }
+
+            return true;
         }
     }
 }

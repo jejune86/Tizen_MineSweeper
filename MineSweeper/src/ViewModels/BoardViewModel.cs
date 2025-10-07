@@ -6,7 +6,7 @@ namespace MineSweeper.ViewModels
 {
     public class BoardViewModel
     {
-        public BoardModel boardModel { get; private set; }
+        public Board board { get; private set; }
         public Button[,] Buttons { get; private set; }
         public bool BoardInitialized { get; private set; } = false;
 
@@ -14,30 +14,43 @@ namespace MineSweeper.ViewModels
 
         public BoardViewModel()
         {
-            boardModel = new BoardModel();
-            Buttons = new Button[boardModel.rows, boardModel.cols];
+            board = new Board();
+            Buttons = new Button[board.rows, board.cols];
         }
 
         public void OnCellClicked(int row, int col)
         {
             if (!BoardInitialized)
             {
-                boardModel.Initialize(row, col);
+                board.Initialize(row, col);
                 BoardInitialized = true;
             }
-
             RevealCell(row, col);
+        }
+
+        public void OnCellFlagged(int row, int col)
+        {
+            // 깃발 표시 토글
+            if (!board.Cells[row, col].isRevealed)
+            {
+                board.Cells[row, col].isFlagged = !board.Cells[row, col].isFlagged;
+
+                // 버튼 UI도 갱신
+                Buttons[row, col].Text = board.Cells[row, col].isFlagged ? "🚩" : "";
+            }
         }
 
         private void RevealCell(int row, int col)
         {
             var btn = Buttons[row, col];
-            if (!btn.IsEnabled) return;
+            if (!btn.IsEnabled || board.Cells[row, col].isFlagged) return;
 
             btn.IsEnabled = false;
             btn.BackgroundColor = Tizen.NUI.Color.White;
 
-            int value = boardModel.Cells[row, col];
+            board.Cells[row, col].isRevealed = true;
+
+            int value = board.Cells[row, col].num;
             btn.Text = value == -1 ? "*" : value.ToString();
             btn.TextColor = Tizen.NUI.Color.Black;
 
@@ -54,7 +67,7 @@ namespace MineSweeper.ViewModels
                     {
                         int nr = row + dr;
                         int nc = col + dc;
-                        if (nr >= 0 && nr < boardModel.rows && nc >= 0 && nc < boardModel.cols)
+                        if (nr >= 0 && nr < board.rows && nc >= 0 && nc < board.cols)
                             RevealCell(nr, nc);
                     }
             }
