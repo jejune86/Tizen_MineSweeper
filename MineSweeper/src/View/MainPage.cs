@@ -10,8 +10,6 @@ public class MainPage : ContentPage
     private BoardViewModel boardViewModel;
     public MainPage()
     {
-        boardViewModel = new BoardViewModel();
-
         AppBar = new AppBar()
         {
             Title = "My Game"
@@ -27,6 +25,7 @@ public class MainPage : ContentPage
         };
         playButton.Clicked += (s, e) =>
         {
+            boardViewModel = new BoardViewModel();
             Navigator.Push(new GamePage(boardViewModel));
         };
 

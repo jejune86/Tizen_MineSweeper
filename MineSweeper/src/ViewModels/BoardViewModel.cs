@@ -17,6 +17,7 @@ namespace MineSweeper.ViewModels
         {
             board = new Board();
             Buttons = new Button[board.rows, board.cols];
+            BoardInitialized = false;
         }
 
         public void OnCellClicked(int row, int col)
