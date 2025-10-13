@@ -4,7 +4,7 @@ namespace MineSweeper.Models
 {
     public class Cell
     {
-        public int num;
+        public int value;
 
         public bool isRevealed;
 
@@ -13,7 +13,7 @@ namespace MineSweeper.Models
 
         public Cell()
         {
-            num = 0;
+            value = 0;
             isRevealed = false;
             isFlagged = false;
         }

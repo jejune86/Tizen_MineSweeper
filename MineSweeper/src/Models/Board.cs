@@ -39,8 +39,8 @@ namespace MineSweeper.Models
             {
                 int r = rnd.Next(rows);
                 int c = rnd.Next(cols);
-                if ((Math.Abs(r - firstRow) <= 1 && Math.Abs(c - firstCol) <= 1) || Cells[r, c].num == -1) continue;
-                Cells[r, c].num = -1;
+                if ((Math.Abs(r - firstRow) <= 1 && Math.Abs(c - firstCol) <= 1) || Cells[r, c].value == -1) continue;
+                Cells[r, c].value = -1;
                 placedMines++;
             }
 
@@ -48,7 +48,7 @@ namespace MineSweeper.Models
             for (int r = 0; r < rows; r++)
                 for (int c = 0; c < cols; c++)
                 {
-                    if (Cells[r, c].num == -1) continue;
+                    if (Cells[r, c].value == -1) continue;
                     int count = 0;
                     for (int dr = -1; dr <= 1; dr++)
                         for (int dc = -1; dc <= 1; dc++)
@@ -56,9 +56,9 @@ namespace MineSweeper.Models
                             int nr = r + dr;
                             int nc = c + dc;
                             if (nr >= 0 && nr < rows && nc >= 0 && nc < cols)
-                                if (Cells[nr, nc].num  == -1) count++;
+                                if (Cells[nr, nc].value  == -1) count++;
                         }
-                    Cells[r, c].num = count;
+                    Cells[r, c].value = count;
                 }
         }
     }

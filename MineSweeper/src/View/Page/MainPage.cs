@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using MineSweeper.ViewModels;
 using MineSweeper.Views;
@@ -26,7 +27,14 @@ public class MainPage : ContentPage
         playButton.Clicked += (s, e) =>
         {
             boardViewModel = new BoardViewModel();
-            Navigator.Push(new GamePage(boardViewModel));
+            try
+            {
+                Navigator.Push(new GamePage(boardViewModel));
+            }
+            catch (Exception ex)
+            {
+                Tizen.Log.Error("MineSweeper", $"Navigation error: {ex.Message}\n{ex.StackTrace}");
+            }
         };
 
         Button howToPlayButton = new Button()

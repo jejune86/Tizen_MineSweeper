@@ -1,4 +1,5 @@
 using System;
+using Tizen;
 using Tizen.NUI.Components;
 using MineSweeper.Models;
 using Tizen.Network.Nfc;
@@ -8,7 +9,7 @@ namespace MineSweeper.ViewModels
     public class BoardViewModel
     {
         public Board board { get; private set; }
-        public Button[,] Buttons { get; private set; }
+        public CellViewModel[,] Cells { get; private set; }
         public bool BoardInitialized { get; private set; } = false;
 
         public event Action GameOver; // Game Over 이벤트
@@ -16,8 +17,26 @@ namespace MineSweeper.ViewModels
         public BoardViewModel()
         {
             board = new Board();
-            Buttons = new Button[board.rows, board.cols];
             BoardInitialized = false;
+            Cells = new CellViewModel[board.rows, board.cols];
+            InitializeCells();
+        }
+
+        private void InitializeCells()
+        {
+            for (int r = 0; r < board.rows; r++)
+                for (int c = 0; c < board.cols; c++)
+                    Cells[r, c] = new CellViewModel
+                    {
+                        cell = new Cell()
+                    };
+        }
+
+        private void SetCells()
+        {
+            for (int r = 0; r < board.rows; r++)
+                for (int c = 0; c < board.cols; c++)
+                    Cells[r, c].cell.value = board.Cells[r,c].value;
         }
 
         public void OnCellClicked(int row, int col)
@@ -26,6 +45,8 @@ namespace MineSweeper.ViewModels
             {
                 board.Initialize(row, col);
                 BoardInitialized = true;
+                SetCells();
+                Log.Info("MineSweeper", $"Board Initialized");
             }
 
             if (CheckChord(row, col))
@@ -37,19 +58,17 @@ namespace MineSweeper.ViewModels
         public void OnCellFlagged(int row, int col)
         {
             // 깃발 표시 토글
-            if (!board.Cells[row, col].isRevealed)
+            var cell = Cells[row, col];
+            if (!cell.IsRevealed)
             {
-                board.Cells[row, col].isFlagged = !board.Cells[row, col].isFlagged;
-
-                // 버튼 UI도 갱신
-                Buttons[row, col].Text = board.Cells[row, col].isFlagged ? "🚩" : "";
+                cell.IsFlagged = !cell.IsFlagged; // 이 순간 PropertyChanged 발생 → View에서 자동 UI 갱신
             }
         }
 
         private bool CheckChord(int row, int col)
         {
-            Cell cell = board.Cells[row, col];
-            if (!cell.isRevealed || cell.num <= 0) return false;
+            var cell = Cells[row, col];
+            if (!cell.IsRevealed || cell.cell.value <= 0) return false;
 
             int flagCount = 0;
             for (int dr = -1; dr <= 1; dr++)
@@ -58,12 +77,12 @@ namespace MineSweeper.ViewModels
                     if (dr == 0 && dc == 0) continue;
                     int nr = row + dr;
                     int nc = col + dc;
-                    if (nr >= 0 && nr < board.rows && nc >= 0 && nc < board.cols && board.Cells[nr, nc].isFlagged)
+                    if (nr >= 0 && nr < board.rows && nc >= 0 && nc < board.cols && Cells[nr,nc].IsFlagged)
                     {
                         flagCount++;
                     }
                 }
-            if (flagCount == board.Cells[row, col].num) return true;
+            if (flagCount == cell.cell.value) return true;
 
             return false;
         }
@@ -83,27 +102,20 @@ namespace MineSweeper.ViewModels
 
         private void RevealCell(int row, int col) // TODO : BFS로 바꾸기
         {
-            var btn = Buttons[row, col];
-            int value = board.Cells[row, col].num;
+            var cell = Cells[row, col];
 
+            if (cell.IsFlagged || cell.IsRevealed) return;
 
-            if (board.Cells[row, col].isFlagged || board.Cells[row, col].isRevealed) return;
+            cell.IsRevealed = true;
+            cell.cell.value = board.Cells[row, col].value;
 
-            if (!board.Cells[row, col].isRevealed)
-            {
-                btn.BackgroundColor = Tizen.NUI.Color.White;
-                board.Cells[row, col].isRevealed = true;
-                btn.Text = value == -1 ? "*" : value.ToString();
-                btn.TextColor = Tizen.NUI.Color.Black;
-            }
-
-            if (value == -1)
+            if (cell.cell.value == -1)
             {
                 GameOver?.Invoke();
                 return;
             }
 
-            if (value == 0)
+            if (cell.cell.value == 0)
             {
                 RevealSurround(row, col);
             }

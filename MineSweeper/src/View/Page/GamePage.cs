@@ -14,6 +14,8 @@ namespace MineSweeper.Views
         private int cellSize;
         private Timer longPressTimer;
 
+        private Button[,] buttons;
+
         public GamePage(BoardViewModel vm)
         {
             boardViewModel = vm;
@@ -24,6 +26,8 @@ namespace MineSweeper.Views
 
             WidthSpecification = LayoutParamPolicies.MatchParent;
             HeightSpecification = LayoutParamPolicies.MatchParent;
+            
+            buttons = new Button[boardViewModel.board.rows, boardViewModel.board.cols];
 
             var boardLayout = new View
             {
@@ -43,19 +47,39 @@ namespace MineSweeper.Views
             {
                 for (int c = 0; c < boardViewModel.board.cols; c++)
                 {
-                    var btn = new Button
-                    {
-                        WidthSpecification = cellSize,
-                        HeightSpecification = cellSize,
-                        BorderlineWidth = 1,
-                        BorderlineColor = Color.Black
-                    };
+                    var btn = new CellButton(cellSize);
 
                     int rr = r, cc = c;
-                    
+
                     btn.TouchEvent += (s, e) => OnCellTouchEvent(s, e, rr, cc);
 
-                    boardViewModel.Buttons[r, c] = btn;
+                    var cellVM = boardViewModel.Cells[r, c];
+                    cellVM.PropertyChanged += (s, e) =>
+                    {
+                        if (e.PropertyName == nameof(CellViewModel.IsFlagged))
+                        {
+                            Log.Info("MineSweeper", $"Flag Change Detected");
+                            btn.ToggleFlag();
+                        }
+                            
+                    };
+
+                    cellVM.PropertyChanged += (s, e) =>
+                    {
+                        if (e.PropertyName == nameof(CellViewModel.IsRevealed))
+                        {
+                            Log.Info("MineSweeper", $"Reveal Change Detected");
+                            try
+                            {
+                                btn.OpenCell(cellVM.cell.value);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error("MineSweeper", $"Navigation error: {ex.Message}\n{ex.StackTrace}");
+                            }
+                        }
+                    };
+                    buttons[r, c] = btn; // ✅ View가 직접 관리
                     boardLayout.Add(btn);
                 }
             }
@@ -67,7 +91,7 @@ namespace MineSweeper.Views
             {
                 for (int r = 0; r < boardViewModel.board.rows; r++)
                     for (int c = 0; c < boardViewModel.board.cols; c++)
-                        boardViewModel.Buttons[r, c].IsEnabled = false;
+                        buttons[r, c].IsEnabled = false;
             };
         }
 
@@ -98,7 +122,14 @@ namespace MineSweeper.Views
                     longPressTimer.Stop();
                     longPressTimer.Dispose();
                     longPressTimer = null;
-                    boardViewModel.OnCellClicked(row, col);
+                    try
+                    {
+                        boardViewModel.OnCellClicked(row, col);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("MineSweeper", $"Cell Click Error: {ex.Message}\n{ex.StackTrace}");
+                    }
                 }
             }
 
