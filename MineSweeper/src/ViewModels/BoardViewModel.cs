@@ -17,19 +17,27 @@ namespace MineSweeper.ViewModels
         public BoardViewModel()
         {
             board = new Board();
-            BoardInitialized = false;
             Cells = new CellViewModel[board.rows, board.cols];
-            InitializeCells();
+            InitializeBoard();
         }
 
-        private void InitializeCells()
+        public void InitializeBoard()
         {
+            BoardInitialized = false;
             for (int r = 0; r < board.rows; r++)
                 for (int c = 0; c < board.cols; c++)
-                    Cells[r, c] = new CellViewModel
+                    if (Cells[r, c] == null)
                     {
-                        cell = new Cell()
-                    };
+                        Cells[r, c] = new CellViewModel
+                        {
+                            cell = new Cell()
+                        };
+                    }
+                    else
+                    {
+                        Cells[r, c].IsRevealed = false;
+                        Cells[r, c].IsFlagged = false;
+                    }
         }
 
         private void SetCells()

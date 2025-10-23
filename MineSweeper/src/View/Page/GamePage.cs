@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using MineSweeper.ViewModels;
 using Tizen;
 using Tizen.NUI;
@@ -70,8 +71,14 @@ namespace MineSweeper.Views
                         {
                             Log.Info("MineSweeper", $"Reveal Change Detected");
                             try
-                            {
-                                btn.OpenCell(cellVM.cell.value);
+                            {   if (cellVM.cell.isRevealed)
+                                {
+                                    btn.OpenCell(cellVM.cell.value);
+                                }
+                                else
+                                {
+                                    btn.ResetCell();
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -85,13 +92,37 @@ namespace MineSweeper.Views
             }
 
 
-            Content = boardLayout;
+            Content = new View()
+            {
+                WidthSpecification = LayoutParamPolicies.MatchParent,
+                HeightSpecification = LayoutParamPolicies.MatchParent,
+                Layout = new LinearLayout()
+                {
+                    LinearOrientation = LinearLayout.Orientation.Vertical,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                },
+            };
+
+            Button replay = new Button()
+            {
+                WidthSpecification = LayoutParamPolicies.MatchParent,
+                HeightSpecification = 100
+            };
+
+            replay.Clicked += OnReplayClicked;
+
+            Content.Add(boardLayout);
+            Content.Add(replay);
 
             boardViewModel.GameOver += () =>
             {
                 for (int r = 0; r < boardViewModel.board.rows; r++)
                     for (int c = 0; c < boardViewModel.board.cols; c++)
+                    {
                         buttons[r, c].IsEnabled = false;
+                    }
+                        
             };
         }
 
@@ -134,6 +165,14 @@ namespace MineSweeper.Views
             }
 
             return true;
+        }
+
+        private void OnReplayClicked(object sender, ClickedEventArgs e)
+        {
+            boardViewModel.InitializeBoard();
+            for (int r = 0; r < boardViewModel.board.rows; r++)
+                for (int c = 0; c < boardViewModel.board.cols; c++)
+                    buttons[r, c].IsEnabled = true;
         }
     }
 }
