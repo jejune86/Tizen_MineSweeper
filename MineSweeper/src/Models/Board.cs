@@ -17,7 +17,22 @@ namespace MineSweeper.Models
             {
                 for (int c = 0; c < cols; c++)
                 {
-                    Cells[r, c] = new Cell();
+                    Cells[r, c] = new Cell(r, c);
+                }
+            }
+        }
+
+        public Board(int rows, int cols, int mineCount)
+        {
+            this.rows = rows;
+            this.cols = cols;
+            this.mineCount = mineCount;
+            Cells = new Cell[rows, cols];
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    Cells[r, c] = new Cell(r, c);
                 }
             }
         }
@@ -28,7 +43,7 @@ namespace MineSweeper.Models
             {
                 for (int c = 0; c < cols; c++)
                 {
-                    Cells[r, c] = new Cell();
+                    Cells[r, c] = new Cell(r, c);
                 }
             }
 

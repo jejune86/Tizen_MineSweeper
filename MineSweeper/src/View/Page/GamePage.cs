@@ -12,10 +12,12 @@ namespace MineSweeper.Views
     public class GamePage : ContentPage
     {
         private BoardViewModel boardViewModel;
+
         private int cellSize;
+
         private Timer longPressTimer;
 
-        private Button[,] buttons;
+        private CellButton[,] buttons;
 
         public GamePage(BoardViewModel vm)
         {
@@ -27,19 +29,83 @@ namespace MineSweeper.Views
 
             WidthSpecification = LayoutParamPolicies.MatchParent;
             HeightSpecification = LayoutParamPolicies.MatchParent;
-            
-            buttons = new Button[boardViewModel.board.rows, boardViewModel.board.cols];
 
-            var boardLayout = new View
+            InitializeContent();
+
+            boardViewModel.GameOver += () =>
+            {
+                for (int r = 0; r < boardViewModel.board.rows; r++)
+                    for (int c = 0; c < boardViewModel.board.cols; c++)
+                    {
+                        buttons[r, c].IsEnabled = false;
+                    }
+
+            };
+        }
+
+        private void InitializeContent()
+        {
+            var boardLayout = InitializeBoardLayout();
+
+            var infoBar = new InfoBar(boardViewModel);
+
+            Content = new View()
             {
                 WidthSpecification = LayoutParamPolicies.MatchParent,
                 HeightSpecification = LayoutParamPolicies.MatchParent,
+                Layout = new LinearLayout()
+                {
+                    LinearOrientation = LinearLayout.Orientation.Vertical,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                },
+            };
+
+            var underBoard = new View()
+            {
+                BackgroundImage = ImagePaths.UnderBoard,
+                WidthSpecification = LayoutParamPolicies.MatchParent,
+                HeightSpecification = LayoutParamPolicies.MatchParent,
+                Layout = new LinearLayout()
+                {
+                    LinearOrientation = LinearLayout.Orientation.Vertical,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                },
+            };
+
+            Button replay = new Button()
+            {
+                WidthSpecification = 100,
+                HeightSpecification = 100,
+                BackgroundImage = ImagePaths.GetCellImage("redo")
+            };
+
+            replay.Clicked += OnReplayClicked;
+
+            underBoard.Add(replay);
+
+            Content.Add(infoBar);
+            Content.Add(boardLayout);
+            Content.Add(underBoard);
+        }
+        
+        private View InitializeBoardLayout()
+        {
+            buttons = new CellButton[boardViewModel.board.rows, boardViewModel.board.cols];
+            
+            int boardSize = Window.Instance.Size.Width;
+            var boardLayout = new View
+            {
+                WidthSpecification = boardSize,
+                HeightSpecification = boardSize,
                 Layout = new GridLayout
                 {
                     Rows = boardViewModel.board.rows,     // 인스턴스로 접근
                     Columns = boardViewModel.board.cols,
                     GridOrientation = GridLayout.Orientation.Horizontal
-                }
+                },
+                BackgroundColor = new Tizen.NUI.Color(0.349f, 0.349f, 0.349f, 1f)
             };
 
             cellSize = Window.Instance.Size.Width / boardViewModel.board.rows;
@@ -62,7 +128,7 @@ namespace MineSweeper.Views
                             Log.Info("MineSweeper", $"Flag Change Detected");
                             btn.ToggleFlag();
                         }
-                            
+
                     };
 
                     cellVM.PropertyChanged += (s, e) =>
@@ -71,7 +137,8 @@ namespace MineSweeper.Views
                         {
                             Log.Info("MineSweeper", $"Reveal Change Detected");
                             try
-                            {   if (cellVM.cell.isRevealed)
+                            {
+                                if (cellVM.cell.isRevealed)
                                 {
                                     btn.OpenCell(cellVM.cell.value);
                                 }
@@ -90,40 +157,7 @@ namespace MineSweeper.Views
                     boardLayout.Add(btn);
                 }
             }
-
-
-            Content = new View()
-            {
-                WidthSpecification = LayoutParamPolicies.MatchParent,
-                HeightSpecification = LayoutParamPolicies.MatchParent,
-                Layout = new LinearLayout()
-                {
-                    LinearOrientation = LinearLayout.Orientation.Vertical,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center
-                },
-            };
-
-            Button replay = new Button()
-            {
-                WidthSpecification = LayoutParamPolicies.MatchParent,
-                HeightSpecification = 100
-            };
-
-            replay.Clicked += OnReplayClicked;
-
-            Content.Add(boardLayout);
-            Content.Add(replay);
-
-            boardViewModel.GameOver += () =>
-            {
-                for (int r = 0; r < boardViewModel.board.rows; r++)
-                    for (int c = 0; c < boardViewModel.board.cols; c++)
-                    {
-                        buttons[r, c].IsEnabled = false;
-                    }
-                        
-            };
+            return boardLayout;
         }
 
         private bool OnCellTouchEvent(object sender, TouchEventArgs e, int row, int col)
@@ -131,6 +165,9 @@ namespace MineSweeper.Views
             if (e.Touch.GetState(0) == PointStateType.Down)
             {
                 Log.Info("MineSweeper", $"Pressed Down at ({row}, {col})");
+
+                if (!boardViewModel.Cells[row, col].cell.isFlagged && !boardViewModel.Cells[row, col].cell.isRevealed)
+                    buttons[row, col].BackgroundImage = ImagePaths.GetCellImage(0);
 
                 // 0.6초(600ms) 이상 누르면 깃발 표시
                 longPressTimer = new Timer(600);
@@ -146,7 +183,9 @@ namespace MineSweeper.Views
                 longPressTimer.Start();
             }
             else if (e.Touch.GetState(0) == PointStateType.Up)
-            {
+            {   
+                if (!boardViewModel.Cells[row, col].cell.isFlagged && !boardViewModel.Cells[row, col].cell.isRevealed)
+                    buttons[row, col].BackgroundImage = ImagePaths.GetCellImage("close");
                 // 만약 long press 이전에 손을 뗐다면 -> 일반 클릭으로 처리
                 if (longPressTimer != null)
                 {

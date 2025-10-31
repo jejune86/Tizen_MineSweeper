@@ -10,9 +10,15 @@ namespace MineSweeper.Models
 
         public bool isFlagged;
 
+        public int row;
 
-        public Cell()
+        public int col;
+
+
+        public Cell(int row, int col)
         {
+            this.row = row;
+            this.col = col;
             value = 0;
             isRevealed = false;
             isFlagged = false;

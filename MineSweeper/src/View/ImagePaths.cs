@@ -29,13 +29,28 @@ public static class ImagePaths
 
     public static string CELL_8 = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/cell_8.png";
 
+    public static string CELL_SMILE = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/cell_smile.png";
+
+    public static string CELL_DEAD = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/cell_dead.png";
+
+    public static string CELL_SUNGLASS = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/cell_smile.png";
+
+    public static string InfoBoard = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/info_board.png";
+
+    public static string UnderBoard = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/under_board.png";
+
     public static string GetCellImage(string type)
     {
         return Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/cell_" + type + ".png";
     }
-    
+
     public static string GetCellImage(int type)
     {
         return Tizen.Applications.Application.Current.DirectoryInfo.Resource + $"images/cell_{type}.png";
+    }
+    
+    public static string GetNumberImage(int type)
+    {
+        return Tizen.Applications.Application.Current.DirectoryInfo.Resource + $"images/number_{type}.png";
     }
 }

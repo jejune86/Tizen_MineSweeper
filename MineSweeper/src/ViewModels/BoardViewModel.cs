@@ -3,14 +3,29 @@ using Tizen;
 using Tizen.NUI.Components;
 using MineSweeper.Models;
 using Tizen.Network.Nfc;
+using System.ComponentModel;
 
 namespace MineSweeper.ViewModels
 {
-    public class BoardViewModel
+    public class BoardViewModel : INotifyPropertyChanged
     {
         public Board board { get; private set; }
         public CellViewModel[,] Cells { get; private set; }
         public bool BoardInitialized { get; private set; } = false;
+        private int remainingFlags;
+
+        public int RemainingFlags
+        {
+            get => remainingFlags;
+            set
+            {
+                if (remainingFlags != value)
+                {
+                    remainingFlags = value;
+                    OnPropertyChanged(nameof(RemainingFlags));
+                }
+            }
+        }
 
         public event Action GameOver; // Game Over 이벤트
 
@@ -19,6 +34,7 @@ namespace MineSweeper.ViewModels
             board = new Board();
             Cells = new CellViewModel[board.rows, board.cols];
             InitializeBoard();
+            
         }
 
         public void InitializeBoard()
@@ -30,7 +46,7 @@ namespace MineSweeper.ViewModels
                     {
                         Cells[r, c] = new CellViewModel
                         {
-                            cell = new Cell()
+                            cell = new Cell(r, c)
                         };
                     }
                     else
@@ -38,6 +54,7 @@ namespace MineSweeper.ViewModels
                         Cells[r, c].IsRevealed = false;
                         Cells[r, c].IsFlagged = false;
                     }
+            RemainingFlags = board.mineCount;
         }
 
         private void SetCells()
@@ -70,6 +87,7 @@ namespace MineSweeper.ViewModels
             if (!cell.IsRevealed)
             {
                 cell.IsFlagged = !cell.IsFlagged; // 이 순간 PropertyChanged 발생 → View에서 자동 UI 갱신
+                RemainingFlags = cell.IsFlagged ? RemainingFlags - 1 : RemainingFlags + 1;
             }
         }
 
@@ -128,5 +146,8 @@ namespace MineSweeper.ViewModels
                 RevealSurround(row, col);
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
