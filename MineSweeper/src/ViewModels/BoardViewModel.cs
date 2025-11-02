@@ -4,6 +4,7 @@ using Tizen.NUI.Components;
 using MineSweeper.Models;
 using Tizen.Network.Nfc;
 using System.ComponentModel;
+using Tizen.NUI;
 
 namespace MineSweeper.ViewModels
 {
@@ -13,6 +14,9 @@ namespace MineSweeper.ViewModels
         public CellViewModel[,] Cells { get; private set; }
         public bool BoardInitialized { get; private set; } = false;
         private int remainingFlags;
+        private int leftCellToOpenCount;
+        private int elapsedTime;
+        private Timer gameTimer;
 
         public int RemainingFlags
         {
@@ -26,7 +30,7 @@ namespace MineSweeper.ViewModels
                 }
             }
         }
-        private int leftCellToOpenCount;
+       
         public int LeftCellToOpenCount
         {
             get => LeftCellToOpenCount;
@@ -39,6 +43,20 @@ namespace MineSweeper.ViewModels
                 }
             }
         }
+
+        public int ElapsedTime
+        {
+            get => elapsedTime;
+            set
+            {
+                if (elapsedTime != value)
+                {
+                    elapsedTime = value;
+                    OnPropertyChanged(nameof(ElapsedTime));
+                }
+            }
+        }
+
 
         public event Action GameOver; // Game Over 이벤트
 
@@ -55,6 +73,9 @@ namespace MineSweeper.ViewModels
         public void InitializeBoard()
         {
             BoardInitialized = false;
+            StopTimer();
+            ElapsedTime = 0;
+
             for (int r = 0; r < board.rows; r++)
                 for (int c = 0; c < board.cols; c++)
                     if (Cells[r, c] == null)
@@ -87,6 +108,7 @@ namespace MineSweeper.ViewModels
                 board.Initialize(row, col);
                 BoardInitialized = true;
                 SetCells();
+                StartTimer();
                 Log.Info("MineSweeper", $"Board Initialized");
             }
 
@@ -155,12 +177,14 @@ namespace MineSweeper.ViewModels
 
             if (cell.cell.value == -1)
             {
+                StopTimer();
                 GameOver?.Invoke();
                 return;
             }
 
             if (leftCellToOpenCount == 0)
             {
+                StopTimer();
                 GameClear?.Invoke();
                 return;
             }
@@ -170,6 +194,29 @@ namespace MineSweeper.ViewModels
                 RevealSurround(row, col);
             }
         }
+
+        private void StartTimer()
+        {
+            StopTimer();
+            gameTimer = new Timer(1000);
+            gameTimer.Tick += (s, e) =>
+            {
+                ElapsedTime++;
+                return true;
+            };
+            gameTimer.Start();
+        }
+
+        private void StopTimer()
+        {
+            if (gameTimer != null)
+            {
+                gameTimer.Stop();
+                gameTimer.Dispose();
+                gameTimer = null;
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

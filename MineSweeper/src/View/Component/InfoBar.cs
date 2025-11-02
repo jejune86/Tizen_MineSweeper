@@ -12,6 +12,7 @@ public class InfoBar : View
     private ImageView faceImage;
     private ImageView[] timerImages = new ImageView[3];
     private BoardViewModel boardViewModel;
+    
 
     public InfoBar(BoardViewModel boardViewModel)
     {
@@ -64,7 +65,7 @@ public class InfoBar : View
             Add(timerImages[i]);
         }
 
-        boardViewModel.PropertyChanged += OnRemainingFlagsChanged;
+        boardViewModel.PropertyChanged += OnNumberChanged;
     }
     
     public void UpdateFace(int type)
@@ -84,18 +85,18 @@ public class InfoBar : View
         }
     }
 
-    // 예시: 더미 값 000
-    public void UpdateDummyValues()
-    {
-        UpdateNumberImages(remainingFlagCountImage, 0);
-        UpdateNumberImages(timerImages, 0);
-    }
 
-    private void OnRemainingFlagsChanged(object sender, PropertyChangedEventArgs e)
+    private void OnNumberChanged(object sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(boardViewModel.RemainingFlags))
         {
             UpdateNumberImages(remainingFlagCountImage, boardViewModel.RemainingFlags);
         }
+
+        else if (e.PropertyName == nameof(boardViewModel.ElapsedTime))
+        {
+            UpdateNumberImages(timerImages, boardViewModel.ElapsedTime);
+        }
     }
+    
 }
