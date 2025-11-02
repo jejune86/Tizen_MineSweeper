@@ -4,6 +4,7 @@ using Tizen.NUI.BaseComponents;
 using MineSweeper.ViewModels;
 using System;
 using System.ComponentModel;
+using Tizen.Messaging.Email;
 
 public class InfoBar : View
 {
@@ -19,7 +20,7 @@ public class InfoBar : View
         int screenWidth = Window.Instance.Size.Width;
         WidthSpecification = LayoutParamPolicies.MatchParent;
         HeightSpecification = (int)(screenWidth * 48f / 320f);
-        
+
         Layout = new LinearLayout()
         {
             LinearOrientation = LinearLayout.Orientation.Horizontal,
@@ -64,6 +65,13 @@ public class InfoBar : View
         }
 
         boardViewModel.PropertyChanged += OnRemainingFlagsChanged;
+    }
+    
+    public void UpdateFace(int type)
+    {
+        if (type == 0) faceImage.ResourceUrl = ImagePaths.CELL_SMILE;
+        else if (type == 1) faceImage.ResourceUrl = ImagePaths.CELL_DEAD;
+        else faceImage.ResourceUrl = ImagePaths.CELL_SUNGLASS;
     }
 
     // 숫자 이미지 업데이트 함수

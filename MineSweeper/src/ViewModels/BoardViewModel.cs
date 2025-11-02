@@ -26,8 +26,23 @@ namespace MineSweeper.ViewModels
                 }
             }
         }
+        private int leftCellToOpenCount;
+        public int LeftCellToOpenCount
+        {
+            get => LeftCellToOpenCount;
+            set
+            {
+                if (leftCellToOpenCount != value)
+                {
+                    leftCellToOpenCount = value;
+                    OnPropertyChanged(nameof(LeftCellToOpenCount));
+                }
+            }
+        }
 
         public event Action GameOver; // Game Over 이벤트
+
+        public event Action GameClear;
 
         public BoardViewModel()
         {
@@ -55,6 +70,7 @@ namespace MineSweeper.ViewModels
                         Cells[r, c].IsFlagged = false;
                     }
             RemainingFlags = board.mineCount;
+            leftCellToOpenCount = board.rows*board.cols - board.mineCount;
         }
 
         private void SetCells()
@@ -93,6 +109,7 @@ namespace MineSweeper.ViewModels
 
         private bool CheckChord(int row, int col)
         {
+            Log.Info("MineSweeper", $"ChekChord called : row={row}, col={col}");
             var cell = Cells[row, col];
             if (!cell.IsRevealed || cell.cell.value <= 0) return false;
 
@@ -134,10 +151,17 @@ namespace MineSweeper.ViewModels
 
             cell.IsRevealed = true;
             cell.cell.value = board.Cells[row, col].value;
+            leftCellToOpenCount--;
 
             if (cell.cell.value == -1)
             {
                 GameOver?.Invoke();
+                return;
+            }
+
+            if (leftCellToOpenCount == 0)
+            {
+                GameClear?.Invoke();
                 return;
             }
 

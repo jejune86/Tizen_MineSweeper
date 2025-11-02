@@ -33,7 +33,7 @@ public static class ImagePaths
 
     public static string CELL_DEAD = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/cell_dead.png";
 
-    public static string CELL_SUNGLASS = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/cell_smile.png";
+    public static string CELL_SUNGLASS = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/cell_sunglass.png";
 
     public static string InfoBoard = Tizen.Applications.Application.Current.DirectoryInfo.Resource + "images/info_board.png";
 
@@ -48,9 +48,14 @@ public static class ImagePaths
     {
         return Tizen.Applications.Application.Current.DirectoryInfo.Resource + $"images/cell_{type}.png";
     }
-    
+
     public static string GetNumberImage(int type)
     {
         return Tizen.Applications.Application.Current.DirectoryInfo.Resource + $"images/number_{type}.png";
+    }
+    
+    public static string GetImage(string name)
+    {
+        return Tizen.Applications.Application.Current.DirectoryInfo.Resource + $"images/{name}.png";
     }
 }
