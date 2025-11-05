@@ -1,36 +1,67 @@
 using System.ComponentModel;
 using MineSweeper.Models;
 
-public class CellViewModel : INotifyPropertyChanged
+namespace MineSweeper.ViewModels
 {
-    public Cell cell;
-
-    public bool IsFlagged
+    public class CellViewModel : INotifyPropertyChanged
     {
-        get => cell.isFlagged;
-        set
+        private Cell cell;
+
+        public int Row => cell.row;
+        public int Col => cell.col;
+        public int Value
         {
-            if (cell.isFlagged != value)
+            get => cell.value;
+            set
             {
-                cell.isFlagged = value;
-                OnPropertyChanged(nameof(IsFlagged)); 
+                if (cell.value != value)
+                {
+                    cell.value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
             }
         }
-    }
 
-    public bool IsRevealed
-    {
-        get => cell.isRevealed;
-        set
+        public bool IsFlagged
         {
-            if (cell.isRevealed != value)
+            get => cell.isFlagged;
+            set
             {
-                cell.isRevealed = value;
-                OnPropertyChanged(nameof(IsRevealed));
+                if (cell.isFlagged != value)
+                {
+                    cell.isFlagged = value;
+                    OnPropertyChanged(nameof(IsFlagged)); 
+                }
             }
         }
-    }
 
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        public bool IsRevealed
+        {
+            get => cell.isRevealed;
+            set
+            {
+                if (cell.isRevealed != value)
+                {
+                    cell.isRevealed = value;
+                    OnPropertyChanged(nameof(IsRevealed));
+                }
+            }
+        }
+
+        // 내부에서만 사용할 수 있도록 internal 생성자 또는 SetCell 메서드
+        internal CellViewModel(Cell cell)
+        {
+            this.cell = cell;
+        }
+
+        // BoardViewModel에서 사용할 수 있도록 internal setter
+        internal void SetCellValue(int value)
+        {
+            this.cell.value = value;
+            OnPropertyChanged(nameof(Value));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
 }

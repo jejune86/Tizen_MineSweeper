@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using MineSweeper.Views;
 using MineSweeper.ViewModels;
 using Tizen;
 using Tizen.NUI;
@@ -38,8 +39,8 @@ namespace MineSweeper.Views
 
             boardViewModel.GameOver += () =>
             {
-                for (int r = 0; r < boardViewModel.board.rows; r++)
-                    for (int c = 0; c < boardViewModel.board.cols; c++)
+                for (int r = 0; r < boardViewModel.Rows; r++)
+                    for (int c = 0; c < boardViewModel.Cols; c++)
                     {
                         buttons[r, c].IsEnabled = false;
                     }
@@ -49,8 +50,8 @@ namespace MineSweeper.Views
 
             boardViewModel.GameClear += () =>
             {
-                for (int r = 0; r < boardViewModel.board.rows; r++)
-                    for (int c = 0; c < boardViewModel.board.cols; c++)
+                for (int r = 0; r < boardViewModel.Rows; r++)
+                    for (int c = 0; c < boardViewModel.Cols; c++)
                     {
                         buttons[r, c].IsEnabled = false;
                     }
@@ -124,7 +125,7 @@ namespace MineSweeper.Views
 
         private View InitializeBoardLayout()
         {
-            buttons = new CellButton[boardViewModel.board.rows, boardViewModel.board.cols];
+            buttons = new CellButton[boardViewModel.Rows, boardViewModel.Cols];
 
             int boardSize = Window.Instance.Size.Width;
             var boardLayout = new View
@@ -133,21 +134,21 @@ namespace MineSweeper.Views
                 HeightSpecification = boardSize,
                 Layout = new GridLayout
                 {
-                    Rows = boardViewModel.board.rows,     // 인스턴스로 접근
-                    Columns = boardViewModel.board.cols,
+                    Rows = boardViewModel.Rows,
+                    Columns = boardViewModel.Cols,
                     GridOrientation = GridLayout.Orientation.Horizontal
                 },
                 BackgroundColor = new Tizen.NUI.Color(0.349f, 0.349f, 0.349f, 1f)
             };
 
-            cellSize = Window.Instance.Size.Width / boardViewModel.board.rows;
+            cellSize = Window.Instance.Size.Width / boardViewModel.Rows;
 
-            for (int r = 0; r < boardViewModel.board.rows; r++)
+            for (int r = 0; r < boardViewModel.Rows; r++)
             {
-                for (int c = 0; c < boardViewModel.board.cols; c++)
+                for (int c = 0; c < boardViewModel.Cols; c++)
                 {
 
-                    var cellVM = boardViewModel.Cells[r, c];
+                    var cellVM = boardViewModel.GetCell(r, c);
                     var btn = new CellButton(cellSize, cellVM);
 
                     btn.CellTouched += (row, col, isLongPress) =>
@@ -170,8 +171,8 @@ namespace MineSweeper.Views
         private void OnReplayClicked(object sender, ClickedEventArgs e)
         {
             boardViewModel.InitializeBoard();
-            for (int r = 0; r < boardViewModel.board.rows; r++)
-                for (int c = 0; c < boardViewModel.board.cols; c++)
+            for (int r = 0; r < boardViewModel.Rows; r++)
+                for (int c = 0; c < boardViewModel.Cols; c++)
                     buttons[r, c].IsEnabled = true;
             infoBar.UpdateFace(0);
         }
