@@ -2,6 +2,7 @@ using Tizen.NUI;
 using Tizen.NUI.Components;
 using Tizen.NUI.BaseComponents;
 using MineSweeper.ViewModels;
+using MineSweeper.Services;
 using System;
 using System.ComponentModel;
 using Tizen.Messaging.Email;

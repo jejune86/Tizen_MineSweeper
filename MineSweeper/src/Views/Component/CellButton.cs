@@ -5,6 +5,7 @@ using System.ComponentModel;
 using Tizen;
 using System;
 using MineSweeper.ViewModels;
+using MineSweeper.Services;
 
 namespace MineSweeper.Views
 {

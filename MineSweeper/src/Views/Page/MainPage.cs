@@ -2,6 +2,7 @@ using System;
 using System.Net.Http.Headers;
 using MineSweeper.ViewModels;
 using MineSweeper.Views;
+using MineSweeper.Services;
 using Tizen.NUI;
 using Tizen.NUI.BaseComponents;
 using Tizen.NUI.Components;
@@ -67,7 +68,9 @@ public class MainPage : ContentPage
         };
         playButton.Clicked += (s, e) =>
         {
-            boardViewModel = new BoardViewModel();
+            // Dependency Injection: GameTimerService 생성 후 주입
+            var timerService = new GameTimerService();
+            boardViewModel = new BoardViewModel(timerService);
             try
             {
                 Navigator.Push(new GamePage(boardViewModel));

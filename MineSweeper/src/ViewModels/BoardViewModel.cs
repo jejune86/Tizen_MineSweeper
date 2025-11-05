@@ -2,6 +2,7 @@ using System;
 using Tizen;
 using Tizen.NUI.Components;
 using MineSweeper.Models;
+using MineSweeper.Services;
 using System.ComponentModel;
 using Tizen.NUI;
 
@@ -19,8 +20,7 @@ namespace MineSweeper.ViewModels
         public CellViewModel GetCell(int row, int col) => cells[row, col];
         private int remainingFlags;
         private int leftCellToOpenCount;
-        private int elapsedTime;
-        private Timer gameTimer;
+        private readonly GameTimerService gameTimerService;
 
         public int RemainingFlags
         {
@@ -50,15 +50,7 @@ namespace MineSweeper.ViewModels
 
         public int ElapsedTime
         {
-            get => elapsedTime;
-            set
-            {
-                if (elapsedTime != value)
-                {
-                    elapsedTime = value;
-                    OnPropertyChanged(nameof(ElapsedTime));
-                }
-            }
+            get => gameTimerService?.ElapsedTime ?? 0;
         }
 
 
@@ -66,19 +58,26 @@ namespace MineSweeper.ViewModels
 
         public event Action GameClear;
 
-        public BoardViewModel()
+        /// <summary>
+        /// BoardViewModel 생성자
+        /// </summary>
+        /// <param name="timerService">게임 타이머 서비스 (Dependency Injection)</param>
+        public BoardViewModel(GameTimerService timerService = null)
         {
             board = new Board();
             cells = new CellViewModel[board.rows, board.cols];
-            InitializeBoard();
             
+            // Dependency Injection: GameTimerService 주입
+            gameTimerService = timerService ?? new GameTimerService();
+            gameTimerService.TimeUpdated += (time) => OnPropertyChanged(nameof(ElapsedTime));
+            
+            InitializeBoard();
         }
 
         public void InitializeBoard()
         {
             BoardInitialized = false;
-            StopTimer();
-            ElapsedTime = 0;
+            gameTimerService.Reset();
 
             for (int r = 0; r < board.rows; r++)
                 for (int c = 0; c < board.cols; c++)
@@ -109,7 +108,7 @@ namespace MineSweeper.ViewModels
                 board.Initialize(row, col);
                 BoardInitialized = true;
                 SetCells();
-                StartTimer();
+                gameTimerService.Start();
                 Log.Info("MineSweeper", $"Board Initialized");
             }
 
@@ -178,14 +177,14 @@ namespace MineSweeper.ViewModels
 
             if (cell.Value == -1)
             {
-                StopTimer();
+                gameTimerService.Stop();
                 GameOver?.Invoke();
                 return;
             }
 
             if (leftCellToOpenCount == 0)
             {
-                StopTimer();
+                gameTimerService.Stop();
                 GameClear?.Invoke();
                 return;
             }
@@ -196,27 +195,6 @@ namespace MineSweeper.ViewModels
             }
         }
 
-        private void StartTimer()
-        {
-            StopTimer();
-            gameTimer = new Timer(1000);
-            gameTimer.Tick += (s, e) =>
-            {
-                ElapsedTime++;
-                return true;
-            };
-            gameTimer.Start();
-        }
-
-        private void StopTimer()
-        {
-            if (gameTimer != null)
-            {
-                gameTimer.Stop();
-                gameTimer.Dispose();
-                gameTimer = null;
-            }
-        }
 
 
         public event PropertyChangedEventHandler PropertyChanged;

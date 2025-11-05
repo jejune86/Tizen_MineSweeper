@@ -1,0 +1,48 @@
+@startuml MineSweeper Class Diagram
+
+!theme plain
+skinparam shadowing false
+skinparam classFontSize 10
+skinparam classAttributeIconSize 0
+
+package Models #E1F5FF {
+    class Board
+    class Cell
+}
+
+package ViewModels #FFF4E1 {
+    class BoardViewModel
+    class CellViewModel
+}
+
+package Services #F3E5F5 {
+    class GameTimerService
+    class ImagePaths
+}
+
+package Views #E8F5E9 {
+    class GamePage
+    class MainPage
+    class CellButton
+    class InfoBar
+    class FireworksEffectManager
+}
+
+' 핵심 관계만 표시
+BoardViewModel *-- Board
+BoardViewModel *-- CellViewModel
+BoardViewModel --> GameTimerService
+CellViewModel *-- Cell
+Board *-- Cell
+
+GamePage --> BoardViewModel
+GamePage *-- CellButton
+GamePage *-- InfoBar
+GamePage *-- FireworksEffectManager
+CellButton --> CellViewModel
+InfoBar --> BoardViewModel
+FireworksEffectManager ..> ImagePaths
+
+MainPage --> GamePage
+
+@enduml
