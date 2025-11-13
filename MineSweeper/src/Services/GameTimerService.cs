@@ -3,9 +3,6 @@ using Tizen.NUI;
 
 namespace MineSweeper.Services
 {
-    /// <summary>
-    /// 게임 타이머를 관리하는 서비스 클래스
-    /// </summary>
     public class GameTimerService : IDisposable
     {
         private Timer gameTimer;
@@ -29,9 +26,6 @@ namespace MineSweeper.Services
 
         public bool IsRunning => isRunning;
 
-        /// <summary>
-        /// 타이머를 시작합니다.
-        /// </summary>
         public void Start()
         {
             Stop();
@@ -41,9 +35,6 @@ namespace MineSweeper.Services
             gameTimer.Start();
         }
 
-        /// <summary>
-        /// 타이머를 중지합니다.
-        /// </summary>
         public void Stop()
         {
             if (gameTimer != null)
@@ -56,9 +47,6 @@ namespace MineSweeper.Services
             isRunning = false;
         }
 
-        /// <summary>
-        /// 타이머를 리셋합니다.
-        /// </summary>
         public void Reset()
         {
             Stop();

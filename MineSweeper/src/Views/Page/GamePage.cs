@@ -112,10 +112,8 @@ namespace MineSweeper.Views
             {
                 WidthSpecification = LayoutParamPolicies.MatchParent,
                 HeightSpecification = LayoutParamPolicies.MatchParent,
-                // 기본 레이아웃(Absolute)을 사용하므로 자식 뷰의 Position을 직접 제어
             };
 
-            // 5. Content를 루트 View로 설정하고 mainLayout과 effectsOverlay를 추가
             Content = new View()
             {
                 WidthSpecification = LayoutParamPolicies.MatchParent,
@@ -164,7 +162,7 @@ namespace MineSweeper.Views
                             boardViewModel.OnCellClicked(row, col);
                     };
 
-                    buttons[r, c] = btn; // ✅ View가 직접 관리
+                    buttons[r, c] = btn;
                     boardLayout.Add(btn);
                 }
             }
